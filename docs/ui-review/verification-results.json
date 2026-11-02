@@ -1,0 +1,86 @@
+{
+  "results": [
+    {
+      "width": 1440,
+      "theme": "Fall",
+      "viewport": 1440,
+      "document": 1440
+    },
+    {
+      "width": 1440,
+      "theme": "Winter",
+      "viewport": 1440,
+      "document": 1440
+    },
+    {
+      "width": 1440,
+      "booking": "quantity, theme preservation, review and keyboard seat selection passed"
+    },
+    {
+      "width": 1024,
+      "theme": "Fall",
+      "viewport": 1024,
+      "document": 1024
+    },
+    {
+      "width": 1024,
+      "theme": "Winter",
+      "viewport": 1024,
+      "document": 1024
+    },
+    {
+      "width": 1024,
+      "booking": "quantity, theme preservation, review and keyboard seat selection passed"
+    },
+    {
+      "width": 768,
+      "theme": "Fall",
+      "viewport": 768,
+      "document": 768
+    },
+    {
+      "width": 768,
+      "theme": "Winter",
+      "viewport": 768,
+      "document": 768
+    },
+    {
+      "width": 768,
+      "booking": "quantity, theme preservation, review and keyboard seat selection passed"
+    },
+    {
+      "width": 390,
+      "theme": "Fall",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "width": 390,
+      "theme": "Winter",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "width": 390,
+      "booking": "quantity, theme preservation, review and keyboard seat selection passed"
+    },
+    {
+      "width": 360,
+      "theme": "Fall",
+      "viewport": 360,
+      "document": 360
+    },
+    {
+      "width": 360,
+      "theme": "Winter",
+      "viewport": 360,
+      "document": 360
+    },
+    {
+      "width": 360,
+      "booking": "quantity, theme preservation, review and keyboard seat selection passed"
+    }
+  ],
+  "pageErrors": [],
+  "paymentSubmitted": false
+}

@@ -1,0 +1,26 @@
+# Dependencies and build output
+node_modules/
+client/dist/
+**/bin/
+**/obj/
+*.tsbuildinfo
+TestResults/
+
+# SQLite runtime database (recreated and seeded on API start)
+server/EventRegistration.Api/blevinspass.db
+server/EventRegistration.Api/blevinspass.db-*
+*.db-journal
+
+# Local secrets and editor/OS files
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+.vs/
+.vscode/
+*.user
+.DS_Store
+Thumbs.db
+
+# Temporary logs
+*.log

@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-11-02T04:35:23.552Z",
+  "timeZone": "America/New_York",
+  "scope": "Documentation and archive closeout only; no app/provider mutations or Git commands",
+  "codexMessages": 72,
+  "codexSourceCutoff": "2026-11-02T04:40:35.463Z",
+  "claudeMessages": 57,
+  "claudeSourceCutoff": "2026-11-02T04:17:22.435Z",
+  "originalClaudeSnapshotUnchanged": true,
+  "archiveFiles": 24,
+  "archiveInventorySha256": "230750e8d3a87e10ace5f25595a8654c65be8bb8b56b45370abf7df29a4e26ed",
+  "credentialPatternMatches": 0,
+  "validation": {
+    "liveMarkdownDocuments": 23,
+    "brokenLocalLinks": [],
+    "unbalancedCodeFences": [],
+    "scopeExcludes": "verbatim historical conversation snapshots and code blocks beyond local-link/code-fence validation"
+  },
+  "nativeClaudeExport": "Owner confirms export/submission obligations completed; paths not independently supplied",
+  "realRefundOutcome": "PASSED — manually verified by owner",
+  "applicationTestsRerun": false,
+  "ownerConfirmationRecordedAt": "2026-11-02T04:40:36.538Z",
+  "ownerVerification": "Real refund manually verified PASSED; all owner submission checklist actions confirmed complete"
+}

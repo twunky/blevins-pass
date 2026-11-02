@@ -1,0 +1,71 @@
+I'll make these fixes now. It's 9:56 p.m., so there are 54 minutes to the 10:50 freeze. First I'll try to copy the real .NET libraries already restored on your PC into my workspace, so I can run the actual tests here.
+
+The native SQLite library is nested too deep to copy, so I'll use the system SQLite here instead. Now the fixes, starting with the payment lifecycle.
+
+The server fixes are in. Next: give the fake Stripe gateway payload checking and a pause hook, then add the race tests.
+
+That pause hook came out muddled. Tidying it up.
+
+Now a real test run here: the actual EF Core, Stripe.net and xUnit libraries copied from your PC, plus a small reflection-based runner.
+
+Built against the real libraries. Running all the tests:
+
+Client builds and lints cleanly. Now a rendered check against the **real API**: I can run it here with the real libraries, but without Stripe access.
+
+The real API is up here with 6 events seeded. Now the browser checks against it: failed verification then retry, refresh, cancel then refresh, and the booking flow up to Stripe.
+
+Two harness bugs in my check script (a header merge and a self-matching `pkill`), not app bugs. Fixing them:
+
+The API was down from my earlier `pkill`. Restarting it and running the check in the background:
+
+The script edit never applied (that earlier shell was killed first). Re-applying it:
+
+My kill filter matched my own shell's command line, which is what kept killing it. Tightening it to processes that start with `dotnet`:
+
+Every real-API check now passes, including cancel then refresh. Updating the contracts, the docs and the build log next.
+
+Docs updated. Stopping my helper processes (carefully this time), refreshing the raw session copy and syncing the changed files:
+
+My filter caught the shell running it, so the copy step didn't run. The helpers are all stopped; rerunning the copy:
+
+All three REVIEW-001 findings are fixed. All 39 tests (the original 33 plus 6 new race tests) pass in my workspace against the real EF Core, Stripe.net and xUnit libraries copied from your PC. You still need to re-run the tests on your PC and repeat a Stripe purchase. It's 10:05 p.m., 45 minutes before the 10:50 freeze; I added no new features.
+
+**What changed**
+- **Checkout vs. abandoned-order cleanup (P1):** starting checkout and releasing an abandoned order now each make a single conditional database update on the same order row, so exactly one of them wins.
+  - If cleanup wins, checkout never calls Stripe and returns 409.
+  - If checkout wins, cleanup's release changes nothing and the hold stays.
+  - If the order changes state while Stripe is creating the session, that session is expired and no checkout link is returned.
+- **One fixed Stripe request per order (P1):** the first checkout attempt saves the session's expiry time once, and every caller sends that saved value. A Stripe refusal now releases tickets only on the order's very first attempt. A refusal while recovering from an earlier uncertain attempt keeps the hold and returns a retryable 503. Stripe's idempotency errors are treated as uncertain too.
+- **Confirmation page (P2):**
+  - The order reference stays in the URL until "Book another event", so a refresh re-checks the same order with the server.
+  - A failed check shows a "Try again" button.
+  - The success/cancel flag is used once and never treated as proof of payment.
+  - I removed the promise of an emailed receipt.
+- I also fixed a bug the browser check exposed: in development mode, React ran the return-from-Stripe step twice, so a cancel return briefly showed a stale status. It now runs once, and older responses can't overwrite newer ones.
+
+**Evidence**
+- **Tests:** 39 of 39 pass. I ran them with a small runner of my own, because the normal test runner isn't available offline. SQLite was the Linux system library rather than the bundled one, which was nested too deep to copy.
+- **Old vs. new code:** the lost-response-then-refused-retry test fails on the old code and passes now. Codex's original read-read race isn't reproduced by a test: the two-caller test passes on the old code too, because my forced ordering lets the first caller save before the second reads. The two direct "claim vs. release" tests cover the fix.
+- **Real API in a browser, without Stripe:**
+  - Checking while the API was down showed "Try again"; once it was back, retrying showed the order.
+  - A refresh kept the same order.
+  - A cancel return showed the order as released, before and after a refresh.
+  - "Book another event" cleared the URL.
+  - The booking flow reached "Pay with Stripe" and showed the "Stripe is not configured" error.
+- Refreshing a confirmed order after a real payment could not be tested here.
+- `npm run build` and `npm run lint` both pass.
+
+**Still to do on your PC**
+1. Run `dotnet test`; expect 39 passing.
+2. Make a real purchase, then refresh the confirmation page.
+
+One known limitation: if Stripe keeps refusing a recovery attempt, the tickets stay held until it answers or someone resolves it by hand. I chose that over the risk of selling tickets someone may already have paid for; it's documented in `docs/contracts/booking-rules.md`.
+
+**Files changed**
+- Server: `PaymentService.cs`, `StripeCheckoutGateway.cs`, `TestSupport.cs` and the new `LifecycleRaceTests.cs`.
+- Client: `appState.ts`, `AppContext.tsx`, `OrderConfirmation.tsx`, `SiteHeader.tsx`.
+- Docs: the README, `booking-rules.md`, `api-contract.md`, `BUILD-001.md` (new REVIEW-001 section), the completion report and the session list.
+
+**Session records:** the review prompt is saved as `ai-sessions\BUILD-001\review-001-prompt.md`. I refreshed the raw session file at about 10:04 p.m.; it contains no Stripe keys and is labelled as a snapshot, not a full transcript. You still need to export this conversation and the Codex/ChatGPT sessions.
+
+I ran no Git commands.

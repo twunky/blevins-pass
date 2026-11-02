@@ -1,0 +1,98 @@
+I'll read the start-here file and its referenced context on your computer, then work through the tasks.
+
+The shell on your computer couldn't start (not enough free disk space), so I'll work by copying files over and back.
+
+Started 9:08 p.m. ET — **1 h 52 min left** to the 11:00 p.m. deadline (feature freeze 10:50).
+
+Two blockers you may be able to clear while I keep writing code:
+
+1. **The shell on your computer won't start** — the desktop app says it needs up to 17 GB of free disk space. Without it I can't run `dotnet build/test`, `npm`, or the Stripe flow on your machine. I can only copy files to your folder. If you can free space on C: and tell me, I'll switch to building and testing there.
+2. **My cloud workspace has no .NET, and NuGet and Stripe are blocked here** (npm works). So the C# side and the real Stripe purchase can only be verified on your machine.
+
+Meanwhile I'm writing the full app (API, tests, client, docs) and syncing it into `C:\Dev\project-brushfire`. I'm building and linting the React client here.
+
+Context read (both assignment images inspected). Since nothing can run on your machine and .NET isn't available here, I'll write the code very carefully and verify everything I can locally.
+
+That ticket-type ownership hack is ugly; I'll replace it with a proper navigation property.
+
+Server and tests written (21:17). Now the React client.
+
+Client builds and lints cleanly. Syncing code to your folder now so it's safe, then a rendered-UI check.
+
+All 68 code files are in your folder. Now a rendered-UI check against a stand-in API (this checks the screens only, not the real backend).
+
+Works end-to-end in the browser, and the theme switch keeps the selection. The seat-chart labels overlap, so I'll fix that geometry.
+
+Seat chart is fixed. On a phone the page scrolls sideways (the seat chart's minimum width leaks out of the grid), so I'm fixing that.
+
+Mobile overflow fixed (page width now 390 on a 390-px viewport). Next, a careful review of the C# for compile risks, since I can't run a compiler here.
+
+Docs and contracts written (21:28). Now the build log, the session records, and updating the status lines in AGENTS.md and CLAUDE.md.
+
+Progress at 9:29 p.m. ET (91 min left):
+
+- **Done and in your folder:** the .NET 10 API (orders, Stripe lifecycle, seating), 33 xUnit tests, the React client, and docs. The client **builds and lints cleanly** and was **checked in a browser** against a stand-in API: calendar, tickets, seat map, theme switch keeping the selection, and the phone layout.
+- **Still unverified:** the C# has not been compiled or tested, and no real Stripe purchase has been made. Neither can be done from here.
+
+If you can free about 17 GB on C: in the next ~45 minutes, tell me. I'll run `dotnet build/test` and the app on your machine and fix whatever turns up. Otherwise, run the README steps yourself:
+
+1. In `server`: `dotnet build BlevinsPass.slnx` then `dotnet test BlevinsPass.slnx`.
+2. Set `$env:Stripe__SecretKey`, then `dotnet run` in `server\EventRegistration.Api`.
+3. In `client`: `npm install` then `npm run dev`.
+
+Paste any errors here and I'll fix them before 10:50.
+
+.NET 10 SDK turns out to be installable from Ubuntu's package archive here (NuGet is still blocked). That's enough for a partial compile check that catches errors in my own code.
+
+All files are synced. Now stopping my own helper processes and doing a final check of your folder.
+
+Your folder now has `bin\`, `obj\`, `node_modules\` and `dist\`, so it looks like you've been building. Let me check what that shows.
+
+Blevins Pass is fully implemented and in `C:\Dev\project-brushfire`, at 9:36 p.m. with 84 minutes left. Your PC compiled both .NET projects against the real packages at 9:31 p.m. and started a test run at 9:32. I can't see the test results, and no real Stripe test purchase has been made yet.
+
+**Original assignment**
+
+| Requirement | Status |
+|---|---|
+| At least 5 events on an interactive calendar, each with 2+ time slots | Built; checked in a browser against a stand-in API |
+| Ticket types and spots left for the chosen slot | Built; checked in a browser against the stand-in |
+| Buy tickets and pay with Stripe (test mode) | Built; **real purchase not yet made** |
+| Capacity per time slot and ticket type, no overselling | Built; **33 tests written, results not yet seen** |
+
+**Beyond the assignment:** the concert has 18 seats in three priced sections and two performances, chosen on an SVG seat chart that works with mouse and keyboard. Fall/Winter themes are saved in the database, and switching keeps the current selection. Payment is always confirmed on the server by asking Stripe. Tickets are only released when Stripe says the session expired or was cancelled, never just because a timer ran out.
+
+**What was checked**
+- **On your PC (seen from file timestamps only):** the API and test projects built at 9:31:54. I edited three server files after that build (a seat-status helper, a time-zone fallback, a setting for storing the Stripe key outside the repo); those edits have only had my offline check.
+- **Client, in my workspace:** `npm run build` and `npm run lint` both pass. In a browser against the stand-in API:
+  - 2 adult tickets show $48.00, and switching to Winter keeps $48.00.
+  - Picking two seats by mouse and keyboard shows $210.00.
+  - The review page renders, with no console errors.
+  - No sideways scrolling on a phone-width screen; I fixed two layout bugs this check found.
+- **Offline C# check:** all server and test code compiles against stand-in definitions of the libraries, with 0 errors and 0 warnings.
+- **Not done:** I couldn't run the tests or the API myself. The shell on your PC needs about 17 GB free disk to start, and NuGet and Stripe are blocked from my workspace.
+
+**To run it (PowerShell)**
+```powershell
+cd C:\Dev\project-brushfire\server
+dotnet test BlevinsPass.slnx
+cd EventRegistration.Api
+dotnet user-secrets set "Stripe:SecretKey" "sk_test_..."
+dotnet run    # http://127.0.0.1:5050
+```
+In a second terminal:
+```powershell
+cd C:\Dev\project-brushfire\client
+npm install
+npm run dev   # http://127.0.0.1:5173
+```
+Pay with card 4242 4242 4242 4242, any future expiry, any CVC. The database creates and fills itself on first start. To reset it, stop the API and delete `blevinspass.db*`.
+
+**Paste your `dotnet test` output and what happened with the test purchase.** I'll fix anything that fails before the 10:50 freeze and record the results in the build log.
+
+**Known gaps:** there are no Stripe webhooks, so a paid order is confirmed when the buyer returns or on the next request for that time slot; its tickets stay held until then. The theme setting has no login protecting it, and the database is created on startup rather than through migrations. All of this is written up in the README.
+
+**Session records:** your launch prompt, a completion report and the raw session file (copied at about 9:33) are in `ai-sessions\BUILD-001\`; I found no Stripe keys in it. Two exports are still yours to do: this Claude conversation, and the earlier Codex/ChatGPT planning sessions. Token usage is not available to me. Timings and evidence are in `docs\tasks\BUILD-001.md`, and the setup steps are in `README.md`.
+
+I ran no Git commands; nothing was committed, pushed or changed in history.
+
+Sources: [Stripe.net on NuGet](https://www-1.nuget.org/packages/Stripe.net/48.4.0-beta.1) (used to confirm the 48.x package series exists)

@@ -1,0 +1,20 @@
+{
+  "kind": "claude",
+  "generatedAt": "2026-11-02T04:25:18.807Z",
+  "sourceFile": "dadc0381-3554-5b4b-a537-d3fd6c9ebe70.jsonl",
+  "sourceSha256": "20e561f4b36f12fefc347468b2b036859ea79f4b155ec6d279f634715a1e6fa5",
+  "firstSourceTimestamp": "2026-11-02T02:08:08.123Z",
+  "lastSourceTimestamp": "2026-11-02T04:17:22.435Z",
+  "sourceBytes": 5441254,
+  "messages": 57,
+  "credentialPatternRedactions": 0,
+  "omittedReasoningRecords": 142,
+  "malformedOrIncompleteLines": 0,
+  "format": "Derived visible-message text snapshot, not a native app export or unmodified raw file",
+  "exclusions": [
+    "private reasoning",
+    "system/developer messages",
+    "tool arguments/results",
+    "binary images"
+  ]
+}

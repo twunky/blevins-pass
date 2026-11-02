@@ -1,0 +1,20 @@
+{
+  "kind": "codex",
+  "generatedAt": "2026-11-02T04:40:36.131Z",
+  "sourceFile": "rollout-2026-11-01T20-41-39-01a199eb-5607-7bd1-9dc8-8f90b2bf46ef.jsonl",
+  "sourceSha256": "5d091eca0b33f7b6980bd95bace1a1b10e01d6b485acd96986716fc6229ae29b",
+  "firstSourceTimestamp": "2026-11-02T01:41:41.534Z",
+  "lastSourceTimestamp": "2026-11-02T04:40:35.463Z",
+  "sourceBytes": 17218405,
+  "messages": 72,
+  "credentialPatternRedactions": 0,
+  "omittedReasoningRecords": 154,
+  "malformedOrIncompleteLines": 0,
+  "format": "Derived visible-message text snapshot, not a native app export or unmodified raw file",
+  "exclusions": [
+    "private reasoning",
+    "system/developer messages",
+    "tool arguments/results",
+    "binary images"
+  ]
+}

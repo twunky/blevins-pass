@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="EventRegistration.Api/EventRegistration.Api.csproj" />
+  <Project Path="EventRegistration.Tests/EventRegistration.Tests.csproj" />
+</Solution>

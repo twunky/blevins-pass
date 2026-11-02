@@ -1,0 +1,152 @@
+{
+  "generatedAt": "2026-11-02T04:40:36.534Z",
+  "scope": "AI archive; self/closeout metadata excluded",
+  "files": [
+    {
+      "path": "ai-sessions/BUILD-001/completion-report.md",
+      "bytes": 3933,
+      "sha256": "b7446045380bab0b035676086c82040bab76629630d991f439133a458c5b2676",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/BUILD-001/demo-reset-prompt.md",
+      "bytes": 8864,
+      "sha256": "9ec8f77f3ee37e339fc843190f2683272666888b6f7c2f86537ccd30ff1ef82e",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/BUILD-001/demo-reset-review-prompt.md",
+      "bytes": 3937,
+      "sha256": "28188785e00bdd335baf15220f4a3c3d8562eaf78e6f4a5f5c4ebf3a1495172d",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/BUILD-001/prompt.md",
+      "bytes": 1314,
+      "sha256": "fc9d22f8074cfb7f47eb59ec883d96b8933a2ee09cee1dfa977bdae6e03fe23f",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/BUILD-001/raw/dadc0381-3554-5b4b-a537-d3fd6c9ebe70/tool-results/b1poloeng.txt",
+      "bytes": 82359,
+      "sha256": "da16960d7f0e7812decd7e52883f6e338049dc5344e43e7e0ed2d2d9473841c8",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/BUILD-001/raw/dadc0381-3554-5b4b-a537-d3fd6c9ebe70.jsonl",
+      "bytes": 5441254,
+      "sha256": "20e561f4b36f12fefc347468b2b036859ea79f4b155ec6d279f634715a1e6fa5",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/BUILD-001/readable/conversation.md",
+      "bytes": 32292,
+      "sha256": "ab1ebce1b84be2f6a5be4661dda267a66dcd7345b6f2106b8c17ecc3a1221c0c",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/BUILD-001/readable/export-metadata.json",
+      "bytes": 703,
+      "sha256": "da54ddadf7d96afb473c7dcee0c5a0be0f8dac1d12d90b5dc911dde72d5882fb",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/BUILD-001/readable/tool-activity-index.json",
+      "bytes": 25342,
+      "sha256": "785923bd1efad4b8b22a9a21b25df426c5af540b093080b7ce8f1766e4ca225e",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/BUILD-001/readable/visible-messages.jsonl",
+      "bytes": 32394,
+      "sha256": "06966734711b96d3978c85ea85adec91001b97e6f7541174f829b03fef44ea6d",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/BUILD-001/review-001-prompt.md",
+      "bytes": 6203,
+      "sha256": "6d5060afc2d7e2422c3e51a56f077d1b85e4e3e7971133e93dac6d1381692cd6",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/CHAT-REFERENCE-LOG.md",
+      "bytes": 8945,
+      "sha256": "d97812622f3b2bd37dc2bc824f7da33e5cc1234936a3a82a7aaabd4d3dcc1ee1",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/claude-reports/01-build-report-provided-by-owner.txt",
+      "bytes": 7542,
+      "sha256": "ee470fac35f477b73bc0d722519a69db785d7cc244fd34074a50e3adc16bf48a",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/claude-reports/02-review-corrections-provided-by-owner.txt",
+      "bytes": 5935,
+      "sha256": "84e93a64fd681d5a625cf9c53df155b437961a79dc87136756b64d767945e174",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/claude-reports/03-reset-report-provided-by-owner.md",
+      "bytes": 4764,
+      "sha256": "ac11471cbfeef300a95c5d9f8a7c1b420f1bbcfe4cac3710863a3b7e673787ec",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/claude-reports/04-final-reset-review-provided-by-owner.md",
+      "bytes": 4164,
+      "sha256": "bb20db549245e96110786d8c2c17d5de99e9e180e0cb109f29c61a194be3c854",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/codex-chat/conversation.md",
+      "bytes": 55355,
+      "sha256": "58ba7d7e91bd30c30f55fb43d686859761022abcf9a1639f9b36c2fff79ea15f",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/codex-chat/export-metadata.json",
+      "bytes": 731,
+      "sha256": "4ecb5dd4fb106fabe0d22b68dc6eea4ef2cca86c319c9135204e84a939407500",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/codex-chat/tool-activity-index.json",
+      "bytes": 41569,
+      "sha256": "dbb413b9eca7156922e8424c2b63f03d8684d120694f782e978f21c2597cfc08",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/codex-chat/visible-messages.jsonl",
+      "bytes": 56711,
+      "sha256": "61aea0e73d5bfc26515277f447c7d1cfbc533b3ddd40de3f5fca68b502fb2c57",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/OWNER-FINAL-CONFIRMATION.md",
+      "bytes": 1133,
+      "sha256": "b6878fa738478b8e22dbed9a761cc6af651c4d405d59891ac9e660bffa636bfc",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/README.md",
+      "bytes": 6240,
+      "sha256": "da463d2a56a4fc50decd3f0c98263b64c17cffaa1a543b450162184abe5477d7",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/UI-001/completion-report.md",
+      "bytes": 1050,
+      "sha256": "bb47c0f314f60c770cc6ec5b87865ac06a084aa48c5d07c0c284e5446896f755",
+      "credentialPatternMatches": 0
+    },
+    {
+      "path": "ai-sessions/UI-001/prompt.md",
+      "bytes": 11130,
+      "sha256": "bf1cdfad548a02685ec496d0ab472a10be1bdc51b3a28f40136543a1f252485c",
+      "credentialPatternMatches": 0
+    }
+  ],
+  "originalClaudeSnapshotUnchanged": true,
+  "totalCredentialPatternMatches": 0
+}
