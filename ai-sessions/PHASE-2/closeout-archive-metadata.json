@@ -1,0 +1,15 @@
+{
+  "snapshot": "C:\\Dev\\project-brushfire\\ai-sessions\\PHASE-2\\raw\\77bd3fc9-4329-4518-bc22-3caa875e473e.closeout-snapshot-20261105T062740Z.jsonl",
+  "bytes": 8720763,
+  "credentialPatternMatches": {
+    "stripeSecret": 0,
+    "openaiSecret": 0,
+    "awsAccessKey": 0
+  },
+  "status": "Snapshot only; native export and final post-session raw pending",
+  "capturedUtc": "2026-11-05T06:27:40.3248937Z",
+  "usage": "Not available",
+  "sha256": "C7D9DE10A4111CA795FBA2C54CE546C8792E0A6D828DAF605CE78038D472C5EF",
+  "redactions": 0,
+  "sourceLastTimestamp": "2026-11-05T06:21:54.436Z"
+}

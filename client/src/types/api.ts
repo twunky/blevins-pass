@@ -31,6 +31,8 @@ export interface TicketAvailability {
   priceCents: number;
   capacity: number;
   remaining: number;
+  /** People waiting who compete for this type (whole departure when it has a shared limit). */
+  waitlistWaiting: number;
 }
 
 export interface SlotAvailability {
@@ -38,7 +40,13 @@ export interface SlotAvailability {
   timeSlotId: number;
   currency: string;
   isBookable: boolean;
+  /** Each type's remaining is already limited by the shared departure limit. */
   ticketTypes: TicketAvailability[];
+  /** Shared head-count limit for the departure (every ticket is one person); null = none. */
+  sharedCapacity: number | null;
+  /** Places left across all ticket types (0 while anyone is on the waitlist); null = no shared limit. */
+  sharedRemaining: number | null;
+  waitlistWaiting: number;
 }
 
 export interface Seat {
@@ -113,4 +121,88 @@ export interface DemoResetResult {
   refundedOrders: { orderId: string; checkoutSessionId: string; paymentIntentId: string; refundIds: string[]; amountRefundedCents: number; providerStatus: string }[];
   releasedPendingOrders: number;
   blockers: { orderId: string; reason: string }[];
+}
+
+export type WaitlistCustomerStatus =
+  | 'Waiting'
+  | 'OfferPendingContact'
+  | 'OfferAvailable'
+  | 'CheckoutStarted'
+  | 'Purchased'
+  | 'Expired'
+  | 'Cancelled'
+  | 'Lapsed'
+  | 'Refunded';
+
+export interface WaitlistItem {
+  description: string;
+  quantity: number;
+}
+
+/** Customer view of a waitlist entry (GET /api/waitlist/{reference}); never includes contact details. */
+export interface WaitlistStatus {
+  reference: string;
+  eventId: number;
+  eventName: string;
+  timeSlotId: number;
+  slotStartUtc: string;
+  status: WaitlistCustomerStatus;
+  positionInLine: number | null;
+  offerExpiresUtc: string | null;
+  orderId: string | null;
+  canAccept: boolean;
+  canCancel: boolean;
+  /** Accepted offer whose order still awaits payment: reopen that same order's checkout. */
+  canResumeCheckout: boolean;
+  items: WaitlistItem[];
+}
+
+export interface JoinWaitlistRequest {
+  timeSlotId: number;
+  email: string;
+  tickets: { ticketTypeId: number; quantity: number }[];
+}
+
+export type OperatorStatus =
+  | 'Queued'
+  | 'OfferReadyToNotify'
+  | 'ManuallyNotified'
+  | 'CheckoutStarted'
+  | 'Purchased'
+  | 'Expired'
+  | 'Cancelled'
+  | 'Lapsed'
+  | 'Refunded';
+
+/** Development-only operator outbox row (contains contact details). */
+export interface OperatorWaitlistEntry {
+  queueNumber: number;
+  reference: string;
+  privateLink: string;
+  customerEmail: string;
+  eventName: string;
+  timeSlotId: number;
+  slotStartUtc: string;
+  operatorStatus: OperatorStatus;
+  createdUtc: string;
+  offeredUtc: string | null;
+  notifiedUtc: string | null;
+  offerExpiresUtc: string | null;
+  orderId: string | null;
+  items: WaitlistItem[];
+}
+
+export interface OperatorDeparture {
+  timeSlotId: number;
+  eventName: string;
+  startUtc: string;
+  sharedCapacity: number | null;
+  sharedCommitted: number;
+  waitingCount: number;
+  ticketTypes: { ticketTypeId: number; name: string; capacity: number; reserved: number; sold: number }[];
+}
+
+export interface IncreaseCapacityRequest {
+  sharedCapacity: number | null;
+  ticketTypes: { ticketTypeId: number; capacity: number }[];
 }

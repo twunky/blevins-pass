@@ -18,6 +18,8 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<ICheckoutGateway, StripeCheckoutGateway>();
 builder.Services.AddScoped<InventoryService>();
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<WaitlistService>();
+builder.Services.Configure<WaitlistOptions>(builder.Configuration.GetSection("Waitlist"));
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<CatalogService>();
 builder.Services.Configure<DemoResetOptions>(builder.Configuration.GetSection("DemoReset"));
@@ -41,8 +43,10 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    // EnsureCreated (no migrations) suits this disposable demo. To reset, stop the API and delete blevinspass.db*.
+    // EnsureCreated builds a new file; it never alters an existing one. SchemaUpgrade then adds the Phase 2
+    // column/tables to an older file (backup first, additive only, idempotent). See README "Upgrading".
     await db.Database.EnsureCreatedAsync();
+    await SchemaUpgrade.ApplyAsync(db, DateTime.UtcNow, scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("SchemaUpgrade"));
     await SeedData.EnsureSeededAsync(db, DateTime.UtcNow);
 }
 

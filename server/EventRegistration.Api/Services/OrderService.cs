@@ -12,6 +12,7 @@ public class OrderService(
     AppDbContext db,
     InventoryService inventory,
     PaymentService payments,
+    WaitlistService waitlist,
     TimeProvider clock,
     IOptions<CheckoutOptions> checkoutOptions)
 {
@@ -57,6 +58,13 @@ public class OrderService(
 
         // Free inventory held by abandoned or expired orders before deciding there is no room.
         await payments.ReconcileStaleOrdersAsync(slot.Id, cancellationToken);
+        if (!selection.IsSeating)
+        {
+            // First come, first served: people already waiting get freed places before a new buyer does.
+            // The "nobody is waiting" rule itself is enforced inside the hold UPDATE below, so a waitlist
+            // entry committed after this point still blocks the purchase.
+            await waitlist.PromoteAsync(slot.Id, cancellationToken);
+        }
 
         var order = new Order
         {
@@ -86,7 +94,7 @@ public class OrderService(
             }
             else
             {
-                await inventory.HoldTicketsAsync(slot.Id, order.Items.Select(i => (i.TicketTypeId!.Value, i.Quantity, i.Description)));
+                await inventory.HoldTicketsAsync(slot.Id, order.Items.Select(i => (i.TicketTypeId!.Value, i.Quantity, i.Description)), requireEmptyWaitlist: true);
             }
 
             db.Orders.Add(order);

@@ -1,5 +1,5 @@
 import { useApp } from '../context/appState';
-import { formatCents, formatLongDate, formatTime } from '../services/format';
+import { formatCents, formatVenueDateTime } from '../services/format';
 
 /** Shown after returning from Stripe. Status comes from the server's verification, never the URL. */
 export function OrderConfirmation() {
@@ -80,7 +80,7 @@ export function OrderConfirmation() {
         <dd>{order.eventName}</dd>
         <dt>When</dt>
         <dd>
-          {formatLongDate(order.slotStartUtc)} at {formatTime(order.slotStartUtc)} (Eastern)
+          {formatVenueDateTime(order.slotStartUtc)} (venue time, Eastern)
         </dd>
         <dt>Order reference</dt>
         <dd className="mono">{order.id}</dd>

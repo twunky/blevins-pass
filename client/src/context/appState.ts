@@ -35,7 +35,9 @@ export interface AppState {
   /** Reserved Seating selection. */
   selectedSeatIds: number[];
 
-  view: 'browse' | 'review' | 'confirmation';
+  view: 'browse' | 'review' | 'confirmation' | 'waitlist' | 'operator';
+  /** Private waitlist reference from a ?waitlist= link (view 'waitlist'). */
+  waitlistReference: string | null;
   checkout: CheckoutState;
 }
 
@@ -70,6 +72,8 @@ export type AppAction =
   | { type: 'returnVerifying'; orderId: string }
   | { type: 'returnVerified'; order: Order }
   | { type: 'bookingReset' }
+  | { type: 'waitlistOpened'; reference: string }
+  | { type: 'operatorOpened' }
   /** Server availability was reset: drop stale selections/checkout, keep theme and catalog, reload counts. */
   | { type: 'demoAvailabilityReset' };
 
@@ -89,6 +93,7 @@ export const initialState: AppState = {
   ticketQuantities: {},
   selectedSeatIds: [],
   view: 'browse',
+  waitlistReference: null,
   checkout: { status: 'idle', idempotencyKey: null, order: null, error: null, returnOrderId: null },
 };
 
@@ -198,12 +203,18 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     case 'returnVerified':
       return { ...state, view: 'confirmation', checkout: { ...state.checkout, status: 'idle', order: action.order } };
 
+    case 'waitlistOpened':
+      return { ...state, view: 'waitlist', waitlistReference: action.reference };
+    case 'operatorOpened':
+      return { ...state, view: 'operator' };
+
     case 'demoAvailabilityReset':
     case 'bookingReset':
       return {
         ...state,
         ...clearedSelection,
         view: 'browse',
+        waitlistReference: null,
         checkout: idleCheckout,
         availabilityVersion: state.availabilityVersion + 1,
       };

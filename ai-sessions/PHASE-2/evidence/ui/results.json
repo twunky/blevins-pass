@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-11-05T05:03:21.895Z",
+  "origin": "http://127.0.0.1:5173",
+  "results": [
+    {
+      "step": "join+status",
+      "width": 1440,
+      "timezoneId": "America/Los_Angeles",
+      "when": "Saturday, November 14, 2026 at 10:00 AM EST",
+      "overflow": 0
+    },
+    {
+      "step": "join+status",
+      "width": 390,
+      "timezoneId": "Asia/Tokyo",
+      "when": "Saturday, November 14, 2026 at 10:00 AM EST",
+      "overflow": 0
+    },
+    {
+      "step": "operator",
+      "width": 1440,
+      "overflow": 0
+    },
+    {
+      "step": "operator",
+      "width": 390,
+      "overflow": 0
+    },
+    {
+      "step": "offer-gate",
+      "firstCanBuy": true,
+      "secondCanBuy": false
+    },
+    {
+      "pageErrors": 0
+    }
+  ],
+  "errors": []
+}

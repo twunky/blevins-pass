@@ -128,7 +128,10 @@ public class GeneralAdmissionOrderTests
         Assert.Equal("PendingCheckout", sameSlotOtherType.Status);
         var availability = await harness.CreateServices().Catalog.GetTicketAvailabilityAsync(eventId, firstSlot, default);
         Assert.Equal(0, availability.TicketTypes.Single(t => t.TicketTypeId == familyWagon.TicketTypeId).Remaining);
-        Assert.Equal(20, availability.TicketTypes.Single(t => t.TicketTypeId == adult.TicketTypeId).Remaining);
+        // Phase 2 owner rule: the hayride also has a shared limit of 25 people per departure, so the
+        // 3 wagon + 5 adult tickets leave 17 places (the Adult type cap alone would leave 20).
+        Assert.Equal(17, availability.TicketTypes.Single(t => t.TicketTypeId == adult.TicketTypeId).Remaining);
+        Assert.Equal(17, availability.SharedRemaining);
     }
 
     [Fact]

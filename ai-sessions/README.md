@@ -1,5 +1,7 @@
 # AI session archive manifest
 
+**Active Phase 2 records are separate:** [Phase 2 manifest](PHASE-2/README.md). The Phase 1 evidence, historical cutoffs and owner confirmation below are preserved. New Phase 2 exports/results are not implied by Phase 1 completion.
+
 **Final owner confirmation:** real refund manually verified PASSED; all owner export/privacy/repository/reviewer checklist items confirmed complete. [Owner confirmation](OWNER-FINAL-CONFIRMATION.md). Historical snapshot cutoffs below remain accurate; subsequent native-export paths were not supplied to AI and are not invented.
 
 This folder contains the available project records, grouped by provenance. A readable extraction, summary, prompt, report and original raw snapshot are different artifacts; none is silently labelled as a complete native export.

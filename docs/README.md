@@ -1,5 +1,7 @@
 # Docs
 
+Current Phase2: [final handoff/checklist](phase-2/FINAL-HANDOFF.md), [timeline/decisions](phase-2/README.md), [one-page write-up](phase-2/WRITE-UP.md), [waitlist guide](phase-2/WAITLIST-GUIDE.md), [future enhancements](phase-2/FUTURE-ENHANCEMENTS.md), [session manifest](../ai-sessions/PHASE-2/README.md). The root-level final handoff/timeline/checklist listed below describe Phase1 history.
+
 - [FINAL-HANDOFF.md](FINAL-HANDOFF.md): final reviewer/developer entry point and evidence limits
 - [PROJECT-TIMELINE.md](PROJECT-TIMELINE.md): late start, local issues, extension and actual overtime
 - [SUBMISSION-CHECKLIST.md](SUBMISSION-CHECKLIST.md): prepared artifacts and owner-only submission actions

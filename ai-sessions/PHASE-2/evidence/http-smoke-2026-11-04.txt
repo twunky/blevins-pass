@@ -1,0 +1,32 @@
+Phase 2 HTTP smoke run (curl against a real local API process; NOT a browser check)
+Run by Claude Code, 2026-11-04 ~23:55-23:57 America/New_York.
+API: dotnet run, Development, http://127.0.0.1:5051 (alternate port).
+Database: a COPY of the owner's Phase 1 server/EventRegistration.Api/blevinspass.db, placed in the session
+scratchpad. The owner's original file was only read (copied), never opened by the API or modified.
+No Stripe checkout endpoint was called in this run (accept creates a held order only).
+Email below is a fictitious test address created by this run; no customer data from the copy is shown.
+
+Startup (SchemaUpgrade log, path shortened):
+  Database upgraded to Phase 2 schema. Backup: <scratchpad>/smoke/phase1-copy.db.pre-phase2-20261105045546.bak.
+  Steps: Added TimeSlots.SharedCapacity; Set a shared limit of 25 on 3 hayride departure(s);
+  Updated Family Wagon description on 1 ticket type(s); Created WaitlistEntries and WaitlistItems
+  (no "over its shared limit" warning: no hayride departure in the copy exceeded 25)
+
+Results (latest bookable hayride departure, event 2 / slot 7):
+event=2 slot=7
+before: shared 25 remaining 25 types Child=25,Adult=25,Family Wagon=3
+fill1 201                      (3 Family Wagon + 12 Adult, held)
+fill2 201                      (10 Child, held -> 25 people)
+over-limit 409 insufficient_capacity "Not enough places remain on this departure for your whole group (every ticket counts toward the shared limit)."
+full: remaining 0 types Child=0,Adult=0,Family Wagon=0
+join: 201 status Waiting positionInLine 1, offerExpiresUtc null, canAccept false, slotStartUtc "2026-11-10T20:30:00Z"
+outbox-no-header 403
+accept-before-notify 409 offer_not_available
+capacity-below-current (sharedCapacity 24) 400 validation (limits can only increase)
+capacity-27 204
+outbox: OfferReadyToNotify 2xChild, private link starts with http://127.0.0.1:5173/?waitlist=
+notify-foreign-origin 403
+notify 204
+status: OfferAvailable canAccept true expires 2026-11-06T04:56:15Z (24 h offer lifetime)
+accept (twice): status PendingCheckout total 2000 cents, same order on retry: true, slotStartUtc ends with Z: true
+after: shared 27 remaining 0 waiting 0

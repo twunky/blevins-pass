@@ -1,0 +1,13 @@
+{
+  "checkedAtUtc": "2026-11-05T05:44:13.814Z",
+  "passed": true,
+  "evidence": "Built client with controlled API fixtures; first checkout503, second mocked local redirect; no real API/provider/database",
+  "viewport": 390,
+  "timezone": "Asia/Tokyo",
+  "resumeVisibleAfterReload": true,
+  "acceptCalls": 1,
+  "checkoutRequests": 2,
+  "sameOrder": true,
+  "successfulLocalRedirect": true,
+  "pageErrors": 0
+}

@@ -8,6 +8,8 @@ import { ExperienceCollection } from './features/ExperienceCollection';
 import { OrderConfirmation } from './features/OrderConfirmation';
 import { ReviewOrder } from './features/ReviewOrder';
 import { DemoResetControl } from './features/DemoResetControl';
+import { OperatorOutbox } from './features/OperatorOutbox';
+import { WaitlistStatusView } from './features/WaitlistStatusView';
 
 export function App() {
   const { state } = useApp();
@@ -30,6 +32,10 @@ export function App() {
       <main className="page" id="main-content">
         {state.view === 'confirmation' ? (
           <OrderConfirmation />
+        ) : state.view === 'waitlist' ? (
+          <WaitlistStatusView />
+        ) : state.view === 'operator' && import.meta.env.DEV ? (
+          <OperatorOutbox />
         ) : state.view === 'review' ? (
           <ReviewOrder />
         ) : (
@@ -59,7 +65,14 @@ export function App() {
           <span>Brushfire · Eastern time</span>
           <span>Demonstration · Stripe test payments only</span>
         </div>
-        {import.meta.env.DEV && <DemoResetControl />}
+        {import.meta.env.DEV && (
+          <>
+            <a className="operator-link" href="/?operator">
+              Waitlist outbox (development tool)
+            </a>
+            <DemoResetControl />
+          </>
+        )}
       </footer>
     </>
   );

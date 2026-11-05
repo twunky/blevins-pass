@@ -1,5 +1,5 @@
 import { selectedEvent, useApp } from '../context/appState';
-import { formatCents, formatLongDate, formatTime } from '../services/format';
+import { formatCents, formatVenueDateTime } from '../services/format';
 import { selectionLines, selectionTotal } from './selection';
 
 /** Final review before handing off to Stripe-hosted Checkout. */
@@ -28,7 +28,7 @@ export function ReviewOrder() {
       <p>
         <strong>{event.name}</strong>
         <br />
-        {formatLongDate(slot.startUtc)} at {formatTime(slot.startUtc)} (Eastern) · {event.venue}
+        {formatVenueDateTime(slot.startUtc)} (venue time) · {event.venue}
       </p>
       <table className="order-table">
         <thead>

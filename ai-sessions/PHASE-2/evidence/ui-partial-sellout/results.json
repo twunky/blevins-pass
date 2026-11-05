@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-11-05T06:19:49.556Z",
+  "results": [
+    {
+      "width": 1440,
+      "vipWaitlistShown": true,
+      "gaPurchasableInUi": true,
+      "overflow": 0
+    },
+    {
+      "width": 390,
+      "vipWaitlistShown": true,
+      "gaPurchasableInUi": true,
+      "overflow": 0
+    },
+    {
+      "vipWaiting": 1,
+      "gaRemainingBefore": 30,
+      "gaOrderStatus": "PendingCheckout"
+    }
+  ],
+  "errors": []
+}

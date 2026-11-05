@@ -1,0 +1,106 @@
+{
+  "checkedAtUtc": "2026-11-05T05:22:15.7379637Z",
+  "passed": 10,
+  "failed": 0,
+  "evidence": "Actual application services, isolated real SQLite and fake payments; no HTTP load or real provider",
+  "checks": [
+    {
+      "name": "final shared place: mixed ticket types, 8 waves x 16 buyers",
+      "status": "passed",
+      "evidence": {
+        "rounds": 8,
+        "competingRequests": 128,
+        "successfulFinalClaims": 8,
+        "finalPeoplePerRound": 25
+      }
+    },
+    {
+      "name": "mixed-size and multi-line simultaneous groups",
+      "status": "passed",
+      "evidence": {
+        "rounds": 4,
+        "competingOrders": 80,
+        "attemptedPeople": 356,
+        "successfulWholeOrders": 23,
+        "ledgerMatchesOwners": true
+      }
+    },
+    {
+      "name": "same request key: 16 simultaneous retries",
+      "status": "passed",
+      "evidence": {
+        "simultaneousRetries": 16,
+        "distinctOrders": 1,
+        "heldPeople": 5
+      }
+    },
+    {
+      "name": "public orders competing with waitlist joins and promotions",
+      "status": "passed",
+      "evidence": {
+        "publicAttempts": 12,
+        "waitlistJoins": 12,
+        "heldPlusSold": 25,
+        "fifoFairness": "Separate review finding; this scenario asserts capacity conservation."
+      }
+    },
+    {
+      "name": "notified offer: concurrent accepts versus cancellations",
+      "status": "passed",
+      "evidence": {
+        "acceptAttempts": 12,
+        "cancelAttempts": 12,
+        "heldPlusSold": 10,
+        "ledgerMatchesOwners": true
+      }
+    },
+    {
+      "name": "stale accept loses to expiry and capacity reassignment",
+      "status": "passed",
+      "evidence": {
+        "staleAcceptance": "offer_expired",
+        "nextGroupReserved": 10,
+        "ledgerMatchesOwners": true
+      }
+    },
+    {
+      "name": "paid checkout: confirmations, cancellations and new claims",
+      "status": "passed",
+      "evidence": {
+        "confirmOrCancelRequests": 20,
+        "newBuyerAttempts": 10,
+        "newBuyersAccepted": 0,
+        "soldPeople": 25
+      }
+    },
+    {
+      "name": "expired unpaid checkout: duplicate releases and new claims",
+      "status": "passed",
+      "evidence": {
+        "duplicateReleaseRequests": 15,
+        "newBuyerAttempts": 15,
+        "replacementOrders": 12,
+        "heldPeople": 24
+      }
+    },
+    {
+      "name": "unreachable provider after payment: inventory stays held",
+      "status": "passed",
+      "evidence": {
+        "competingRequests": 24,
+        "successfulNewClaims": 0,
+        "heldPeople": 25
+      }
+    },
+    {
+      "name": "last shared place across 4 operating-system processes",
+      "status": "passed",
+      "evidence": {
+        "operatingSystemProcesses": 4,
+        "competingRequests": 16,
+        "successfulFinalClaims": 1,
+        "heldPlusSold": 25
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "checkedAt": "2026-11-05T05:10:29.727Z",
+  "evidence": "Built production client with controlled API fixtures; no real provider or application database",
+  "checkoutCalls": 1,
+  "remainingPurchaseButtons": 0,
+  "statusLink": 1,
+  "observation": "After accept succeeds and checkout returns 503, purchase/retry button is absent. Only payment-status link remains."
+}

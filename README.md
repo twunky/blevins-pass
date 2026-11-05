@@ -1,8 +1,10 @@
 # Blevins Pass
 
+> **Phase2 final status:** implementation stopped; **114 server tests passed,0 failed/skipped**, client lint/build passed independently. Shared hayride capacity and partial-sellout waitlists are implemented. Owner manual acceptance, real Stripe waitlist purchase, full exports and owner PR/submission remain pending. Start with the [Phase2 final handoff](docs/phase-2/FINAL-HANDOFF.md), [write-up](docs/phase-2/WRITE-UP.md), [waitlist guide](docs/phase-2/WAITLIST-GUIDE.md), [session manifest](ai-sessions/PHASE-2/README.md) and [future enhancements](docs/phase-2/FUTURE-ENHANCEMENTS.md). Original deadline: November5,2026,01:32:33 America/New_York. Historical Phase1 evidence below remains separate.
+
 Seasonal event registration for the Brushfire attraction: five General Admission events on an interactive calendar, a small reserved-seating concert, Fall/Winter themes, and real Stripe-hosted Checkout in **test mode**.
 
-> **Final status, November 1, 2026:** application implemented, seasonal UI redesigned, and development reset/refund tool added. Codex independently verified the 39-test core suite, then the final **44 affected reset/payment/HTTP tests**, plus client build/lint and five-width UI checks. **The owner manually verified the real refund as PASSED and confirmed all submission checklist actions complete.** See [final handoff](docs/FINAL-HANDOFF.md), [timing and overtime](docs/PROJECT-TIMELINE.md), and [session records](ai-sessions/README.md). The added reset work used owner-authorized overtime; this is not presented as a strict on-time two-hour delivery.
+> **Phase 1 history — final status, November 1, 2026:** application implemented, seasonal UI redesigned, and development reset/refund tool added. Codex independently verified the 39-test core suite, then the final **44 affected reset/payment/HTTP tests**, plus client build/lint and five-width UI checks. **The owner manually verified the real refund as PASSED and confirmed all submission checklist actions complete.** See [final handoff](docs/FINAL-HANDOFF.md), [timing and overtime](docs/PROJECT-TIMELINE.md), and [session records](ai-sessions/README.md). The added reset work used owner-authorized overtime; this is not presented as a strict on-time two-hour delivery.
 
 ## Stack
 
@@ -64,12 +66,38 @@ npm run build
 
 If the Stripe key is missing, **Pay with Stripe** shows an actionable "Stripe is not configured" error and the tickets stay held. Payment is never simulated.
 
+## Phase 2: waitlist and shared capacity
+
+Detailed customer/operator walkthrough, status meanings, timing rules and reviewed limitations: [Waitlist guide and implementation review](docs/phase-2/WAITLIST-GUIDE.md).
+
+- **Shared hayride limit.** Each hayride departure holds 25 people in total. Adult, Child and Family Wagon tickets each count as one person, and each type keeps its own cap (25/25/3). The check runs in the same guarded database UPDATE as the type cap, so concurrent mixed orders cannot oversell. Other events have no shared limit.
+- **Waitlist.** When a GA departure is sold out, the ticket panel offers **Join the waitlist (no charge)**: email + quantities, no card, no Stripe call. The customer gets a private link `/?waitlist={reference}` showing their status and place in line.
+- **Owner workflow (manual notification).**
+  1. Start the API and client in Development as below and open `http://127.0.0.1:5173/?operator` (or the footer link **Waitlist outbox (development tool)**).
+  2. When places free up (a hold is safely released, or you raise capacity under **Open more places**), the oldest waiting group gets an offer only if its whole selection fits: status **"Places reserved — contact this customer"**. Smaller groups never skip a group that cannot fit.
+  3. Contact the customer yourself (your own email or phone) and include their private link. **The app sends nothing.**
+  4. Press **Mark notified (I contacted them)**. Only then can the customer press **Buy these tickets**, which creates an ordinary order and opens Stripe test Checkout. They are charged only if they complete that checkout.
+  5. An offer lasts 24 hours (`Waitlist:OfferLifetimeMinutes`), restarted when you mark notification. Unaccepted offers expire and the next person is offered automatically on the next page load or request.
+- **First come, first served.** On the hayride (shared limit) the queue covers the whole departure: if the group at the front does not fit, smaller groups wait too, and public sales stay closed while anyone waits. On departures without a shared limit (e.g. cider tasting) the queue is per ticket type: "Join VIP waitlist" appears under a sold-out VIP row, and General Admission stays on sale. This is enforced inside the same database update that reserves the tickets.
+- **Only when sold out.** A new join is refused with `409 tickets_available` if nobody is waiting and the whole group can be bought now. The check and the insert run in one database transaction, so the waitlist cannot reserve places a customer could simply buy.
+- **Checkout interrupted?** The customer's private page shows **Resume checkout** while their accepted order still awaits payment. It reopens the same order, so they cannot be charged twice. A customer refreshing their status page also moves the queue along (expired offers pass to the next person). It does not release an abandoned accepted order. That happens on the next availability or new-order request for the departure.
+- **Demo limits.** The operator page and its API exist only in Development, on loopback, with a special header and the local Origin. There is no authentication, so it is not an admin system for production. Queue movement happens on requests (no scheduler). There is no email/SMS provider. The demo reset cancels open offers but keeps waiting entries.
+
+## Upgrading an existing Phase 1 database
+
+The API upgrades an older `blevinspass.db` automatically at startup (`server/EventRegistration.Api/Data/SchemaUpgrade.cs`). It is additive and idempotent:
+1. It first writes a consistent backup next to the file: `blevinspass.db.pre-phase2-<UTC timestamp>.bak` (SQLite `VACUUM INTO`).
+2. In one transaction it adds `TimeSlots.SharedCapacity`, sets 25 on the hayride departures, updates the Family Wagon description for future bookings, and creates the `WaitlistEntries`/`WaitlistItems` tables.
+3. It deletes nothing, does not reseed, and keeps every order, Stripe reference and the theme. Later starts do nothing.
+
+Recommended: stop the API, copy `blevinspass.db` somewhere safe yourself, then start it again with `dotnet run`. The log line `Database upgraded to Phase 2 schema` lists the backup path and steps. If a departure already had more than 25 riders, it is logged as over its limit. Its orders are kept (nothing is cancelled or refunded) and it simply accepts no new bookings until it drops below the limit. To roll back, stop the API and restore the backup file.
+
 ## Database
 
-- `EnsureCreated` + an idempotent seed run at API start. The seed runs only when the database has no events, so restarts keep orders and the theme setting.
+- `EnsureCreated` + the Phase 2 schema upgrade + an idempotent seed run at API start. The seed runs only when the database has no events, so restarts keep orders and the theme setting.
 - Event dates are relative to the **first** start (first event 7 days out). After those dates pass, slots show as closed. Nothing is deleted automatically.
 - **Preferred demo reset:** use the development footer control described below. It verifies provider outcomes and preserves order history.
-- **Disposable database recreation after a schema change:** first settle all related Stripe checkouts/payments, stop the API and preserve a backup if needed. Delete only the exact `blevinspass.db`, `blevinspass.db-wal` and `blevinspass.db-shm` files in the API folder, then restart. This destroys local orders and does not cancel or refund anything at Stripe. Do not use a wildcard that could delete backups. There are no migrations, and `EnsureCreated` does not upgrade an existing schema.
+- **Disposable database recreation after a schema change:** first settle all related Stripe checkouts/payments, stop the API and preserve a backup if needed. Delete only the exact `blevinspass.db`, `blevinspass.db-wal` and `blevinspass.db-shm` files in the API folder, then restart. This destroys local orders and does not cancel or refund anything at Stripe. Do not use a wildcard that could delete backups. There are no EF migrations; `EnsureCreated` does not upgrade an existing schema, which is why Phase 2 added the explicit upgrade above.
 - Times are stored and returned in UTC and displayed in venue time (America/New_York).
 
 ## Layout
@@ -89,18 +117,18 @@ Start with [docs/architecture.md](docs/architecture.md), [docs/contracts/booking
 
 **Implemented:**
 - Calendar with 6 events (5 GA + concert), at least 2 slots each, slot-specific ticket types with remaining counts, quantity selection, review, Stripe Checkout, and server-verified confirmation.
-- Capacity is independent per slot and ticket type. Holds use guarded conditional updates in one transaction (all-or-nothing). Prices come only from the server.
+- Capacity is per slot/type, with an additional shared25-person hayride limit. Holds use guarded conditional updates in one transaction (all-or-nothing). Prices come only from the server.
 - Order lifecycle with Stripe idempotency keys, safe recovery when session creation has an uncertain outcome, and reconciliation instead of timer-based release.
 - Reserved seating: 18 seats in 3 priced sections, 2 performances, an accessible SVG chart (mouse and keyboard), and live claims enforced by a unique index.
 - Fall/Winter theme saved in SQLite. Switching keeps the current selection.
 
-**Verified:** Codex rebuilt the corrected server and passed the 39-test core suite, then independently passed the final filtered 44 reset/payment/HTTP cases. These are separate runs, not a claim that every current test class was re-run together. The client builds/lints, and 15 real-API UI scenario records pass across 1440, 1024, 768, 390 and 360px, covering both seasonal entries, no page overflow, quantities/totals, preserved selections, review and keyboard seats. Claude additionally reported reset-control checks through the real Vite proxy against fixture/fake-provider data. See [final verification matrix](docs/FINAL-HANDOFF.md#verification-evidence).
+**Verified (Phase 1 history):** Codex rebuilt the corrected server and passed the 39-test core suite, then independently passed the final filtered 44 reset/payment/HTTP cases. These are separate runs, not a claim that every current test class was re-run together. The client builds/lints, and 15 real-API UI scenario records pass across 1440, 1024, 768, 390 and 360px, covering both seasonal entries, no page overflow, quantities/totals, preserved selections, review and keyboard seats. Claude additionally reported reset-control checks through the real Vite proxy against fixture/fake-provider data. See [final verification matrix](docs/FINAL-HANDOFF.md#verification-evidence).
 
-**Provider evidence and remaining limits:** the owner reported a successful real Stripe test purchase and subsequently manually verified the real refund as PASSED. These are owner-verified provider outcomes; automated fake-provider tests are separate evidence. No additional provider IDs or full cross-browser/device/accessibility certification are claimed. The owner confirmed all submission checklist actions completed.
+**Provider evidence and remaining limits (Phase 1 history; not Phase 2):** the owner reported a successful real Stripe test purchase and subsequently manually verified the real refund as PASSED. These are owner-verified provider outcomes; automated fake-provider tests are separate evidence. No additional provider IDs or full cross-browser/device/accessibility certification are claimed. The owner confirmed all Phase 1 submission checklist actions completed. Phase 2 owner acceptance, real Stripe waitlist purchase and submission are still pending.
 
 **Shortcuts and tradeoffs:**
 - No webhooks. A paid order is confirmed when the buyer returns, or by the next availability or order request for that slot. Its inventory stays held until then.
-- No accounts. The email is collected by Stripe. Order IDs are unguessable GUIDs.
+- No accounts. Waitlist contact email is entered on joining; purchase email is verified through Stripe. Order IDs are unguessable GUIDs.
 - The theme `PUT` endpoint is unauthenticated (local demo).
 - `EnsureCreated` instead of migrations.
 - Cleanup runs only when requests come in (no background scheduler).
@@ -126,4 +154,5 @@ It needs your Stripe test key (`Stripe__SecretKey` or user-secrets). If anything
 
 The planned window was 9–11 p.m. Eastern; implementation actually launched at 9:08 p.m. Local disk/shell startup issues, remote NuGet/Stripe restrictions and later a locked running API complicated verification. Core/UI checks were completed before the 10:50 freeze. The owner then authorized a small extension for the added reset/refund tool and its review corrections, reported complete about 11:18 p.m. (18 minutes beyond the original stop; about 2h10 after actual launch). Final verification and this documentation closeout continued afterward. This explains the overrun without changing the original deadline or claiming evaluator approval. [Detailed timeline](docs/PROJECT-TIMELINE.md).
 
-Submission entry points: [final handoff](docs/FINAL-HANDOFF.md), [submission checklist](docs/SUBMISSION-CHECKLIST.md), [AI archive manifest](ai-sessions/README.md), and [human-readable chat log](ai-sessions/CHAT-REFERENCE-LOG.md). The owner alone commits/pushes and invites reviewers. No further implementation is scheduled by this closeout.
+Phase 1 submission entry points (history; Phase 2 submission is pending): [final handoff](docs/FINAL-HANDOFF.md), [submission checklist](docs/SUBMISSION-CHECKLIST.md), [AI archive manifest](ai-sessions/README.md), and [human-readable chat log](ai-sessions/CHAT-REFERENCE-LOG.md). The owner alone commits/pushes and invites reviewers. No further implementation is scheduled by this closeout.
+

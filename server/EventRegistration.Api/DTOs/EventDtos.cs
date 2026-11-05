@@ -21,14 +21,23 @@ public record TicketAvailabilityDto(
     string Description,
     int PriceCents,
     int Capacity,
-    int Remaining);
+    int Remaining,
+    int WaitlistWaiting);
 
+/// <summary>
+/// Each ticket type's Remaining is already limited by the departure's shared head-count limit, so the
+/// sum of selected tickets must also stay within SharedRemaining (null = no shared limit).
+/// WaitlistWaiting counts people in line who have not yet been offered places.
+/// </summary>
 public record SlotAvailabilityDto(
     int EventId,
     int TimeSlotId,
     string Currency,
     bool IsBookable,
-    IReadOnlyList<TicketAvailabilityDto> TicketTypes);
+    IReadOnlyList<TicketAvailabilityDto> TicketTypes,
+    int? SharedCapacity,
+    int? SharedRemaining,
+    int WaitlistWaiting);
 
 public record SeatDto(int Id, string Label, string Row, int SeatNumber, int SvgX, int SvgY, bool Active);
 

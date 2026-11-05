@@ -187,6 +187,15 @@ public class DemoResetService(
             return stillLive.Select(id => new DemoResetBlockerDto(id, "Order became active during the reset; retry.")).ToList();
         }
 
+        // Open waitlist offers hold places through Reserved, which is zeroed below; close them in the same
+        // transaction so no offer survives without its reservation. Waiting entries stay in line.
+        await db.WaitlistEntries
+            .Where(w => w.Status == WaitlistStatus.Offered || w.Status == WaitlistStatus.Notified)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(w => w.Status, WaitlistStatus.Cancelled)
+                .SetProperty(w => w.CloseReason, "DemoReset")
+                .SetProperty(w => w.ClosedUtc, now));
+
         await db.SlotInventories.ExecuteUpdateAsync(setters => setters
             .SetProperty(i => i.Reserved, 0)
             .SetProperty(i => i.Sold, 0));

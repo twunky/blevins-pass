@@ -1,5 +1,7 @@
 # BLEVINS PASS — final developer and reviewer handoff
 
+**Phase1 historical record.** Current Phase2 handoff and pending owner submission actions: [phase-2/FINAL-HANDOFF.md](phase-2/FINAL-HANDOFF.md). Phase1 acceptance below does not imply Phase2 acceptance.
+
 The implementation is closed for further feature work. The owner's last request is documentation and session-record finalization only. Start/run instructions are in the [root README](../README.md); visual rules are in [DESIGN_SYSTEM.md](../DESIGN_SYSTEM.md). Historical task prompts are evidence, not standing permission to start another build.
 
 **Final owner sign-off:** the owner manually verified the real refund as **PASSED** and confirmed all owner submission checklist actions completed. See [the completed checklist](SUBMISSION-CHECKLIST.md) and [confirmation record](../ai-sessions/OWNER-FINAL-CONFIRMATION.md). The automated evidence below remains distinct from this owner verification.
