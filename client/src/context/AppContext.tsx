@@ -117,6 +117,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (returnHandled.current) return; // effects can run twice in development (StrictMode)
     returnHandled.current = true;
     const params = new URLSearchParams(window.location.search);
+    const waitlistReference = params.get('waitlist');
+    if (waitlistReference) {
+      dispatch({ type: 'waitlistOpened', reference: waitlistReference });
+      return;
+    }
+    if (import.meta.env.DEV && params.has('operator')) {
+      dispatch({ type: 'operatorOpened' });
+      return;
+    }
     const orderId = params.get('orderId');
     if (!orderId) return;
     const cancelRequested = params.get('checkout') === 'cancel';

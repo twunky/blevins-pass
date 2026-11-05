@@ -219,17 +219,21 @@ public sealed class TestHarness : IAsyncDisposable
     private readonly string databasePath = Path.Combine(Path.GetTempPath(), $"blevinspass-test-{Guid.NewGuid():N}.db");
     private readonly List<AppDbContext> contexts = [];
 
-    public TestClock Clock { get; } = new(new DateTime(2026, 11, 1, 12, 0, 0, DateTimeKind.Utc));
-    public FakeCheckoutGateway Gateway { get; }
+    public static readonly DateTime DefaultStartUtc = new(2026, 11, 1, 12, 0, 0, DateTimeKind.Utc);
 
-    private TestHarness()
+    public TestClock Clock { get; }
+    public FakeCheckoutGateway Gateway { get; }
+    public WaitlistOptions WaitlistOptions { get; } = new() { OfferLifetimeMinutes = 60 };
+
+    private TestHarness(DateTime startUtc)
     {
+        Clock = new TestClock(startUtc);
         Gateway = new FakeCheckoutGateway(Clock);
     }
 
-    public static async Task<TestHarness> CreateAsync()
+    public static async Task<TestHarness> CreateAsync(DateTime? startUtc = null)
     {
-        var harness = new TestHarness();
+        var harness = new TestHarness(startUtc ?? DefaultStartUtc);
         await using var db = harness.CreateContext();
         await db.Database.EnsureCreatedAsync();
         await SeedData.EnsureSeededAsync(db, harness.Clock.UtcNow);
@@ -251,11 +255,13 @@ public sealed class TestHarness : IAsyncDisposable
         var options = Options.Create(new CheckoutOptions());
         var inventory = new InventoryService(db);
         var payments = new PaymentService(db, inventory, Gateway, requestClock, options, NullLogger<PaymentService>.Instance);
+        var waitlist = new WaitlistService(db, inventory, requestClock, Options.Create(WaitlistOptions), options, NullLogger<WaitlistService>.Instance);
         return new BookingServices(
             db,
-            new OrderService(db, inventory, payments, requestClock, options),
+            new OrderService(db, inventory, payments, waitlist, requestClock, options),
             payments,
-            new CatalogService(db, payments, requestClock));
+            new CatalogService(db, payments, waitlist, requestClock),
+            waitlist);
     }
 
     /// <summary>A demo reset service on its own connection, sharing the given gate with booking calls.</summary>
@@ -315,4 +321,4 @@ public sealed class TestHarness : IAsyncDisposable
     }
 }
 
-public sealed record BookingServices(AppDbContext Db, OrderService Orders, PaymentService Payments, CatalogService Catalog);
+public sealed record BookingServices(AppDbContext Db, OrderService Orders, PaymentService Payments, CatalogService Catalog, WaitlistService Waitlist);

@@ -1,0 +1,259 @@
+I want you to take a step back and evaluate our application's architecture, implementation, and engineering standards with a particular focus on HIGH-VOLUME CONCURRENCY, SCALABILITY, PERFORMANCE, DATA CONSISTENCY, and RESILIENCY.
+
+Our goal is to ensure this application can handle significant traffic spikes and concurrent users without degrading, producing inconsistent data, duplicating operations, or overwhelming our infrastructure.
+
+IMPORTANT: Do not immediately start rewriting code or introducing unnecessary technologies. First inspect our existing codebase, understand our current architecture, identify what we already have, and determine where improvements are necessary. Preserve existing functionality and architectural decisions where they make sense.
+
+Think like a senior/staff engineer designing a production-grade, high-traffic application.
+
+## 1. Architecture and system design review
+Evaluate our current architecture and identify potential bottlenecks:
+- Frontend architecture and React rendering performance.
+- Backend API architecture and request handling.
+- Database architecture, connection pooling, indexing, and query performance.
+- Caching strategies and distributed state.
+- External API and third-party service dependencies.
+- Background processing and asynchronous workloads.
+- Horizontal scaling and infrastructure.
+- CDN, load balancing, and traffic management.
+
+Identify areas where the architecture could fail under sudden traffic spikes or thousands of concurrent users.
+
+## 2. React and frontend engineering standards
+Review our React implementation and apply modern best practices:
+- TypeScript and strong type safety.
+- TanStack Query for server state, caching, request deduplication, and invalidation where appropriate.
+- Avoid unnecessary API requests and duplicate fetches.
+- Optimize component rendering and prevent unnecessary re-renders.
+- Use React.memo, useMemo, and useCallback only where profiling demonstrates value.
+- Use lazy loading, code splitting, and Suspense where appropriate.
+- Implement appropriate loading states, error boundaries, and graceful fallbacks.
+- Keep server state separate from local UI state.
+- Implement debouncing and throttling where appropriate.
+- Avoid excessive polling.
+- Consider WebSockets or Server-Sent Events for real-time updates when justified.
+- Ensure optimistic UI updates never falsely communicate that a server operation has succeeded.
+
+Do not mistake frontend optimizations for backend concurrency protection.
+
+## 3. Database consistency and concurrency protection
+This is a critical priority.
+
+Review all operations that can be executed concurrently and ensure we protect against race conditions.
+
+Evaluate:
+- Database transactions.
+- Atomic database operations.
+- Row-level locking.
+- Optimistic and pessimistic concurrency control.
+- Unique constraints and database-level validation.
+- Appropriate isolation levels.
+- Connection pooling.
+- Deadlock prevention and retry strategies.
+
+For any inventory, reservation, purchasing, or limited-resource workflows, ensure two users cannot successfully claim the same resource.
+
+Never rely exclusively on frontend validation or button disabling to protect data integrity.
+
+## 4. Idempotency and duplicate request prevention
+Review critical API operations for idempotency.
+
+Pay particular attention to:
+- Checkout.
+- Payments.
+- Order creation.
+- Reservations.
+- Form submissions.
+- Background jobs.
+- Webhook processing.
+
+Implement idempotency keys where appropriate so network retries, repeated clicks, and duplicate requests cannot accidentally create duplicate operations or financial transactions.
+
+## 5. Caching and distributed state
+Evaluate whether Redis or another distributed caching solution would improve our architecture.
+
+Consider:
+- Frequently accessed data.
+- Cache invalidation.
+- TTL strategies.
+- Distributed counters.
+- Rate limiting.
+- Session management.
+- Distributed locks only where justified.
+- Cache stampede prevention.
+- Cache consistency.
+
+Do not treat Redis as the source of truth for critical transactional data unless the architecture explicitly justifies it.
+
+## 6. Traffic management and overload protection
+Think about what happens when an unusually large number of users access the application simultaneously.
+
+Evaluate:
+- CDN and edge caching.
+- WAF and bot protection.
+- API rate limiting.
+- Request throttling.
+- Load balancing.
+- Horizontal scaling.
+- Backpressure.
+- Load shedding.
+- Circuit breakers.
+- Bulkheads.
+- Graceful degradation.
+- Virtual waiting rooms or admission control if our use case warrants them.
+
+We should control the amount of traffic reaching critical backend services instead of allowing uncontrolled traffic spikes to overwhelm the system.
+
+## 7. Asynchronous processing and background jobs
+Identify operations that should not block the main user request.
+
+Consider queues and background workers for:
+- Notifications.
+- Email.
+- Reporting.
+- Analytics.
+- Document generation.
+- External integrations.
+- Other non-critical post-transaction work.
+
+Evaluate technologies such as BullMQ, Redis, RabbitMQ, Kafka, or AWS SQS based on our actual architecture and needs.
+
+Consider retry policies, dead-letter queues, job deduplication, and the transactional outbox pattern to ensure reliability.
+
+Never move critical transactional operations into asynchronous processing without preserving the required consistency guarantees.
+
+## 8. API design and backend resilience
+Review our APIs for:
+- Request validation.
+- Consistent error handling.
+- Pagination.
+- Appropriate HTTP status codes.
+- Timeouts.
+- Retry policies with exponential backoff and jitter.
+- Request limits.
+- Idempotency.
+- Authentication and authorization.
+- Protection against cascading failures.
+
+Ensure retries do not create duplicate business operations.
+
+## 9. Observability and monitoring
+We need to understand what is happening when the application is under pressure.
+
+Evaluate implementation of:
+- Structured logging.
+- Distributed tracing.
+- OpenTelemetry.
+- Error tracking.
+- Application performance monitoring.
+- Database monitoring.
+- Queue depth monitoring.
+- API latency monitoring.
+- P95 and P99 response times.
+- Request throughput.
+- Error rates.
+- Resource utilization.
+
+We should be able to identify bottlenecks before they become production incidents.
+
+## 10. Load testing and stress testing
+Establish a load-testing strategy using tools such as k6, Artillery, or JMeter.
+
+Design tests that simulate:
+- Sudden traffic spikes.
+- Thousands of concurrent users.
+- Repeated requests.
+- Concurrent updates to the same records.
+- Database connection exhaustion.
+- Slow external APIs.
+- Queue backlogs.
+- Service interruptions.
+- High-volume reads and writes.
+
+Establish measurable performance and reliability targets based on our expected workload.
+
+Include specific tests for race conditions and duplicate operations, not just HTTP throughput.
+
+## 11. Security and abuse prevention
+Evaluate:
+- Authentication and authorization.
+- API abuse prevention.
+- Bot protection.
+- Rate limiting.
+- Input validation.
+- Resource exhaustion risks.
+- Secure handling of sessions and tokens.
+- Payment and webhook verification where applicable.
+
+## 12. Implementation expectations
+
+I want you to approach this incrementally.
+
+PHASE 1 — DISCOVERY
+Inspect the existing project and explain:
+- Current technology stack.
+- Existing architecture.
+- Existing concurrency protections.
+- Existing performance optimizations.
+- Current bottlenecks and risks.
+- Areas that are already implemented correctly.
+
+PHASE 2 — GAP ANALYSIS
+Provide a prioritized assessment:
+- Critical: risks that could cause data corruption, duplicate transactions, or service outages.
+- High: significant performance and scalability concerns.
+- Medium: architectural improvements.
+- Low: optional optimizations.
+
+For every recommendation, explain why it matters and whether it is necessary now or only at a larger scale.
+
+PHASE 3 — ARCHITECTURE PLAN
+Propose a practical architecture that fits our existing application.
+
+Do not introduce microservices, Kafka, Kubernetes, or additional infrastructure simply because they are popular. Recommend technologies based on actual requirements, operational complexity, and expected scale.
+
+PHASE 4 — IMPLEMENTATION
+Implement improvements incrementally:
+- Preserve existing functionality.
+- Avoid unnecessary rewrites.
+- Maintain clean separation of concerns.
+- Follow established project conventions.
+- Add appropriate tests.
+- Update types and documentation.
+- Explain architectural decisions.
+- Avoid introducing unnecessary dependencies.
+
+PHASE 5 — VALIDATION
+Verify that:
+- Concurrent requests cannot corrupt data.
+- Critical operations are idempotent.
+- Duplicate requests are handled safely.
+- Error handling is consistent.
+- Existing functionality still works.
+- Performance improvements are measurable.
+- Load and concurrency tests pass.
+
+## Important engineering principles
+
+1. Correctness before performance.
+2. Database-level consistency before frontend-level safeguards.
+3. Control incoming traffic before scaling everything indiscriminately.
+4. Cache reads where appropriate, but protect writes and transactional operations.
+5. Use asynchronous processing for non-critical work.
+6. Design for failures, retries, and partial outages.
+7. Measure performance before optimizing.
+8. Avoid premature microservices and unnecessary infrastructure.
+9. Keep the architecture maintainable and understandable.
+10. Never sacrifice data integrity for throughput.
+
+## Final instruction
+
+Start with PHASE 1. Inspect our existing codebase before making changes.
+
+I want an honest assessment of where our application stands today and what needs to change to make it production-ready for significant concurrent traffic.
+
+Think beyond simply making the application work. Think about how it behaves when 10,000, 50,000, or 100,000 users interact with it simultaneously, and what architectural controls are needed to protect the system.
+
+Do not assume those user counts are achievable with our current infrastructure. Identify capacity requirements and validate them through testing.
+
+Let's build this thoughtfully, with scalability, reliability, and maintainability as core engineering principles.

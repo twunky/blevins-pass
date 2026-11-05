@@ -26,6 +26,13 @@ public class TimeSlot
     public DateTime EndUtc { get; set; }
     public bool Active { get; set; } = true;
 
+    /// <summary>
+    /// Optional shared head-count limit for the whole departure (e.g. 25 riders per hayride).
+    /// Every General Admission ticket counts as one person. Null means only per-type caps apply.
+    /// Usage is derived from the per-type ledger (sum of Reserved + Sold), so it cannot drift.
+    /// </summary>
+    public int? SharedCapacity { get; set; }
+
     public List<SlotInventory> Inventories { get; set; } = [];
 }
 

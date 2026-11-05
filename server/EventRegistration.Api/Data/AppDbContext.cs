@@ -16,6 +16,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<SiteSettings> SiteSettings => Set<SiteSettings>();
+    public DbSet<WaitlistEntry> WaitlistEntries => Set<WaitlistEntry>();
+    public DbSet<WaitlistItem> WaitlistItems => Set<WaitlistItem>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -65,6 +67,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         });
 
         modelBuilder.Entity<SiteSettings>().Property(s => s.ActiveTheme).HasConversion<string>();
+
+        // Keep in sync with SchemaUpgrade, which creates these tables in databases made before Phase 2.
+        modelBuilder.Entity<WaitlistEntry>(entity =>
+        {
+            entity.Property(w => w.Status).HasConversion<string>();
+            entity.HasIndex(w => w.PublicReference).IsUnique();
+            entity.HasIndex(w => w.RequestIdempotencyKey).IsUnique();
+            entity.HasIndex(w => new { w.TimeSlotId, w.Status });
+            entity.HasMany(w => w.Items).WithOne().HasForeignKey(i => i.WaitlistEntryId);
+        });
+        modelBuilder.Entity<WaitlistItem>()
+            .ToTable(t => t.HasCheckConstraint("CK_WaitlistItem_Quantity", "\"Quantity\" > 0"));
     }
 }
 

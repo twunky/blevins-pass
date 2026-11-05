@@ -1,0 +1,9 @@
+Codex review-001 probes re-run AFTER Claude's correction pass (probe source docs/phase-2/review-probes/Program.cs unchanged).
+Run by Claude Code at ~00:38 ET, 2026-11-05. Command:
+  NUGET_SCRATCH=...\docs\phase-2\review-probes\.nuget-scratch dotnet run --project docs/phase-2/review-probes/ReviewProbes.csproj
+Output:
+PUBLIC_FIFO_RACE: refused with waitlist_active.
+CAPACITY_INCREASE_RACE: stale increase refused with capacity_changed.
+CAPACITY_INCREASE_RACE: capacity after concurrent 30/40 requests = 40; expected 40, never a decrease.
+STATUS_EXPIRY: next customer's own refresh = OfferPendingContact; live places held = 10; expected OfferPendingContact with 10 reserved.
+Codex's original failing observations are preserved in ai-sessions/PHASE-2/codex-review-001.md; this file does not replace them.

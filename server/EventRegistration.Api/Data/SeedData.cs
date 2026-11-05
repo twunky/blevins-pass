@@ -9,7 +9,7 @@ namespace EventRegistration.Api.Data;
 /// </summary>
 public static class SeedData
 {
-    private static readonly TimeZoneInfo VenueTimeZone = FindVenueTimeZone();
+    public static readonly TimeZoneInfo VenueTimeZone = FindVenueTimeZone();
 
     /// <summary>IANA id works on Linux/macOS and modern Windows (ICU); the Windows id is a fallback.</summary>
     private static TimeZoneInfo FindVenueTimeZone()
@@ -52,7 +52,8 @@ public static class SeedData
             "Ride the wagon to the patch and pick your own pumpkin to take home.",
             "Brushfire Farm Fields", "/images/hayride.svg",
             slotStarts: [(10, 0), (13, 0), (15, 30)], durationMinutes: 75,
-            tickets: [("Adult", "Ages 13 and up", 1800, 25), ("Child", "Ages 3-12", 1000, 25), ("Family Wagon", "Private wagon seating for up to 5", 6500, 3)]);
+            tickets: [("Adult", "Ages 13 and up", 1800, 25), ("Child", "Ages 3-12", 1000, 25), ("Family Wagon", SchemaUpgrade.FamilyWagonDescription, 6500, 3)],
+            sharedCapacity: SchemaUpgrade.HayrideSharedCapacity);
 
         AddGeneralAdmissionEvent(db, firstDay.AddDays(5),
             "Orchard Cider Tasting",
@@ -89,7 +90,8 @@ public static class SeedData
         string imagePath,
         (int Hour, int Minute)[] slotStarts,
         int durationMinutes,
-        (string Name, string Description, int PriceCents, int Capacity)[] tickets)
+        (string Name, string Description, int PriceCents, int Capacity)[] tickets,
+        int? sharedCapacity = null)
     {
         var newEvent = new Event
         {
@@ -109,7 +111,7 @@ public static class SeedData
         foreach (var (hour, minute) in slotStarts)
         {
             var startUtc = VenueLocalToUtc(localDay.AddHours(hour).AddMinutes(minute));
-            var slot = new TimeSlot { StartUtc = startUtc, EndUtc = startUtc.AddMinutes(durationMinutes) };
+            var slot = new TimeSlot { StartUtc = startUtc, EndUtc = startUtc.AddMinutes(durationMinutes), SharedCapacity = sharedCapacity };
             for (var index = 0; index < tickets.Length; index++)
             {
                 slot.Inventories.Add(new SlotInventory { TicketType = ticketTypes[index], Capacity = tickets[index].Capacity });
@@ -165,6 +167,6 @@ public static class SeedData
         return section;
     }
 
-    private static DateTime VenueLocalToUtc(DateTime venueLocal) =>
+    public static DateTime VenueLocalToUtc(DateTime venueLocal) =>
         TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(venueLocal, DateTimeKind.Unspecified), VenueTimeZone);
 }

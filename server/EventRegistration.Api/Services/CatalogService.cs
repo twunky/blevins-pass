@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace EventRegistration.Api.Services;
 
 /// <summary>Read-only event, availability and seating queries, plus the persisted theme setting.</summary>
-public class CatalogService(AppDbContext db, PaymentService payments, TimeProvider clock)
+public class CatalogService(AppDbContext db, PaymentService payments, WaitlistService waitlist, TimeProvider clock)
 {
     private DateTime UtcNow => clock.GetUtcNow().UtcDateTime;
 
@@ -40,20 +40,48 @@ public class CatalogService(AppDbContext db, PaymentService payments, TimeProvid
     {
         var slot = await GetSlotAsync(eventId, timeSlotId, RegistrationType.GeneralAdmission, cancellationToken);
         await payments.ReconcileStaleOrdersAsync(slot.Id, cancellationToken);
+        await waitlist.PromoteAsync(slot.Id, cancellationToken);
 
-        var ticketTypes = await db.SlotInventories.AsNoTracking()
-            .Where(i => i.TimeSlotId == slot.Id && i.TicketType!.Active)
-            .OrderBy(i => i.TicketType!.PriceCents)
-            .Select(i => new TicketAvailabilityDto(
-                i.TicketTypeId,
-                i.TicketType!.Name,
-                i.TicketType.Description,
-                i.TicketType.PriceCents,
-                i.Capacity,
-                i.Capacity - i.Reserved - i.Sold))
+        var rows = await db.SlotInventories.AsNoTracking()
+            .Where(i => i.TimeSlotId == slot.Id)
+            .Select(i => new { i.TicketTypeId, i.TicketType!.Name, i.TicketType.Description, i.TicketType.PriceCents, i.TicketType.Active, i.Capacity, i.Reserved, i.Sold })
             .ToListAsync(cancellationToken);
 
-        return new SlotAvailabilityDto(eventId, slot.Id, "usd", IsBookable(slot), ticketTypes);
+        // Shared usage counts every type (active or not) because every held or sold ticket is a person.
+        // A legacy departure that is already over its limit reports 0, never a negative number.
+        int? sharedRemaining = slot.SharedCapacity is int shared
+            ? Math.Max(0, shared - rows.Sum(r => r.Reserved + r.Sold))
+            : null;
+        var waitingCount = await waitlist.CountWaitingAsync(slot.Id, cancellationToken);
+        // Ticket types someone is waiting for (per waiting entry), matching the public hold guard.
+        var waitingByType = await db.WaitlistItems.AsNoTracking()
+            .Where(i => db.WaitlistEntries.Any(w => w.Id == i.WaitlistEntryId && w.TimeSlotId == slot.Id && w.Status == WaitlistStatus.Waiting))
+            .GroupBy(i => i.TicketTypeId)
+            .Select(g => new { TicketTypeId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(g => g.TicketTypeId, g => g.Count, cancellationToken);
+        var sharedDeparture = slot.SharedCapacity is not null;
+        if (sharedDeparture && waitingCount > 0)
+        {
+            // Shared departures: strict departure-wide first come, first served.
+            sharedRemaining = 0;
+        }
+
+        var ticketTypes = rows
+            .Where(r => r.Active)
+            .OrderBy(r => r.PriceCents)
+            .Select(r =>
+            {
+                // Independent caps: only the types someone is waiting for are held back.
+                var blocked = sharedDeparture ? waitingCount > 0 : waitingByType.ContainsKey(r.TicketTypeId);
+                var typeRemaining = blocked ? 0 : Math.Max(0, r.Capacity - r.Reserved - r.Sold);
+                return new TicketAvailabilityDto(
+                    r.TicketTypeId, r.Name, r.Description, r.PriceCents, r.Capacity,
+                    Math.Min(typeRemaining, sharedRemaining ?? typeRemaining),
+                    sharedDeparture ? waitingCount : waitingByType.GetValueOrDefault(r.TicketTypeId));
+            })
+            .ToList();
+
+        return new SlotAvailabilityDto(eventId, slot.Id, "usd", IsBookable(slot), ticketTypes, slot.SharedCapacity, sharedRemaining, waitingCount);
     }
 
     public async Task<SeatingChartDto> GetSeatingChartAsync(int eventId, CancellationToken cancellationToken)

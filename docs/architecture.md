@@ -24,6 +24,17 @@ Browser (React SPA, :5173) --/api proxy--> ASP.NET Core API (:5050) --EF Core-->
 | Custom calendar and SVG seat map, no UI libraries | Small, accessible, no extra dependencies |
 | Fixed loopback ports and Vite proxy | No CORS or HTTPS-redirect issues; Stripe return URL is deterministic |
 
+### Phase 2 additions
+
+| Decision | Reason |
+|---|---|
+| Shared departure limit = `TimeSlot.SharedCapacity` checked against the live sum of the per-type ledger inside the same guarded hold UPDATE | The overcrowding came from a missing aggregate rule, not a lost update. Deriving usage from existing columns means no new counter has to be kept in sync by confirm/release/reset |
+| `WaitlistService` with offers that hold places through `SlotInventory.Reserved` | One ledger for orders and offers, so type caps, the shared limit and FIFO protection all come from the same guarded UPDATE |
+| Accept converts the offer's reservation into an ordinary order | The existing server pricing, single Stripe session, reconciliation and release rules are reused unchanged |
+| Promotion on requests, not a scheduler | Matches Phase 1's opportunistic reconciliation; there is still no background process |
+| Development-only operator controller with the demo-reset request boundary | The owner sends messages by hand; contact data never leaves loopback Development |
+| `SchemaUpgrade` (backup with `VACUUM INTO`, additive SQL, one transaction, idempotent) after `EnsureCreated` | `EnsureCreated` never alters an existing file; a full migrations setup was more than this change needed |
+
 Business rules are specified once in [contracts/booking-rules.md](contracts/booking-rules.md).
 
 ## Seasonal presentation (UI-001)

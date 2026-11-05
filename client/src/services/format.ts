@@ -25,3 +25,16 @@ export function formatLongDate(isoUtc: string): string {
 export function venueDateKey(isoUtc: string): string {
   return new Date(isoUtc).toLocaleDateString('en-CA', { timeZone: VENUE_TIME_ZONE });
 }
+
+/** "EST" or "EDT" for the instant, so customers in other time zones see which clock a time uses. */
+export function venueZoneName(isoUtc: string): string {
+  const part = new Intl.DateTimeFormat('en-US', { timeZone: VENUE_TIME_ZONE, timeZoneName: 'short' })
+    .formatToParts(new Date(isoUtc))
+    .find((p) => p.type === 'timeZoneName');
+  return part?.value ?? 'ET';
+}
+
+/** Full venue date and time with its zone, e.g. "Saturday, November 14, 2026 at 10:00 AM EST". */
+export function formatVenueDateTime(isoUtc: string): string {
+  return `${formatLongDate(isoUtc)} at ${formatTime(isoUtc)} ${venueZoneName(isoUtc)}`;
+}

@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-11-05T05:39:35.214Z",
+  "origin": "http://127.0.0.1:5173",
+  "results": [
+    {
+      "step": "first-checkout",
+      "status": 503,
+      "orderId": "a3bd9f59-1267-456d-abd8-be5d87459ebe"
+    },
+    {
+      "step": "resume",
+      "sameOrder": true
+    },
+    {
+      "step": "server-state",
+      "status": "CheckoutStarted",
+      "sameOrder": true,
+      "sharedRemaining": 22
+    },
+    {
+      "pageErrors": 0
+    }
+  ],
+  "errors": []
+}

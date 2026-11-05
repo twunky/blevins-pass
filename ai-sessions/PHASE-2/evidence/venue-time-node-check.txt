@@ -1,0 +1,7 @@
+Process TZ=Pacific/Kiritimati offset=+840min; 6/6 passed
+Process TZ=Asia/Kolkata offset=+330min; 6/6 passed
+Process TZ=Europe/London offset=+0min; 6/6 passed
+Process TZ=UTC offset=+0min; 6/6 passed
+Process TZ=America/New_York offset=-300min; 6/6 passed
+Process TZ=America/Los_Angeles offset=-480min; 6/6 passed
+Process TZ=Pacific/Pago_Pago offset=-660min; 6/6 passed

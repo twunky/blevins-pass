@@ -3,11 +3,16 @@ import type {
   CreateOrderRequest,
   DemoResetResult,
   EventSummary,
+  IncreaseCapacityRequest,
+  JoinWaitlistRequest,
+  OperatorDeparture,
+  OperatorWaitlistEntry,
   Order,
   SeatingAvailability,
   SeatingChart,
   SlotAvailability,
   ThemeName,
+  WaitlistStatus,
 } from '../types/api';
 
 /** An API failure carrying the server's structured error code and HTTP status. */
@@ -23,6 +28,16 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await send(path, init);
+  return (await response.json()) as T;
+}
+
+/** Like request, for endpoints that answer 204 No Content. */
+async function requestNoContent(path: string, init?: RequestInit): Promise<void> {
+  await send(path, init);
+}
+
+async function send(path: string, init?: RequestInit): Promise<Response> {
   let response: Response;
   try {
     response = await fetch(path, {
@@ -41,8 +56,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       body?.error?.message ?? `Request failed (${response.status}).`,
     );
   }
-  return (await response.json()) as T;
+  return response;
 }
+
+// Development-only local operator tools. The API answers 404 unless Development + Waitlist:OperatorToolsEnabled
+// on loopback, and requires this header (and, for changes, the local Origin the browser sends).
+const operatorHeaders = { 'X-Local-Operator': 'owner' };
 
 export const api = {
   getEvents: () => request<EventSummary[]>('/api/events'),
@@ -72,6 +91,29 @@ export const api = {
     if (response.ok && body) return body;
     if (response.status === 409 && body?.blockers) return body; // honest "not reset" result with reasons
     throw new ApiError(response.status, 'demo_reset_failed', body?.error?.message ?? `Reset failed (${response.status}).`);
+  },
+  joinWaitlist: (body: JoinWaitlistRequest, idempotencyKey: string) =>
+    request<WaitlistStatus>('/api/waitlist', {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Idempotency-Key': idempotencyKey },
+    }),
+  getWaitlist: (reference: string) => request<WaitlistStatus>(`/api/waitlist/${encodeURIComponent(reference)}`),
+  acceptWaitlistOffer: (reference: string) =>
+    request<Order>(`/api/waitlist/${encodeURIComponent(reference)}/accept`, { method: 'POST' }),
+  cancelWaitlist: (reference: string) =>
+    request<WaitlistStatus>(`/api/waitlist/${encodeURIComponent(reference)}/cancel`, { method: 'POST' }),
+  operator: {
+    getOutbox: () => request<OperatorWaitlistEntry[]>('/api/dev/operator/waitlist', { headers: operatorHeaders }),
+    markNotified: (reference: string) =>
+      requestNoContent(`/api/dev/operator/waitlist/${encodeURIComponent(reference)}/notified`, { method: 'POST', headers: operatorHeaders }),
+    getDepartures: () => request<OperatorDeparture[]>('/api/dev/operator/departures', { headers: operatorHeaders }),
+    increaseCapacity: (timeSlotId: number, body: IncreaseCapacityRequest) =>
+      requestNoContent(`/api/dev/operator/departures/${timeSlotId}/capacity`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: operatorHeaders,
+      }),
   },
   getTheme: () => request<{ activeTheme: ThemeName }>('/api/settings/theme'),
   setTheme: (activeTheme: ThemeName) =>
